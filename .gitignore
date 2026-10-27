@@ -45,3 +45,12 @@ frontend/dist/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Test & Coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Docker volumes
+docker-volumes/

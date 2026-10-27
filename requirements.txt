@@ -1,0 +1,28 @@
+# ============================================================
+# requirements.txt — Pinned from working environment
+# Generated: 2026-10-27  (python app.py confirmed working)
+# ============================================================
+
+# --- Core Backend ---
+Flask==3.1.3
+Flask-Cors==4.0.0
+Werkzeug==3.1.3
+python-dotenv==1.0.1
+requests==2.31.0
+
+# --- Data & ML ---
+pandas==2.2.3
+numpy==2.1.3
+scikit-learn==1.7.2
+joblib==1.5.2
+
+# --- Database ---
+SQLAlchemy==2.0.35
+Flask-SQLAlchemy==3.1.1
+
+# --- Background Scheduler (optional, disabled by default) ---
+APScheduler==3.10.4
+
+# --- Testing ---
+pytest==8.4.2
+pytest-cov==7.1.0

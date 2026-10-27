@@ -1,0 +1,60 @@
+# ============================================================
+# docker-compose.yml — Air Quality Dashboard
+# Runs the full stack (Flask + SQLite) in one command:
+#   docker compose up --build
+# ============================================================
+
+version: "3.9"
+
+services:
+  # ── Backend (Flask + ML + React static) ───────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: air-quality-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"        # Flask API + SPA
+    environment:
+      # Copy from .env.example — never commit real secrets
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY:-change_me_in_production}
+      - FLASK_DEBUG=false
+      - OPENAQ_API_KEY=${OPENAQ_API_KEY:-}
+      - ENABLE_SCHEDULER=${ENABLE_SCHEDULER:-false}
+      - SCHEDULER_INTERVAL_MINUTES=${SCHEDULER_INTERVAL_MINUTES:-30}
+      - USE_PROPER_AQI_CONVERSION=${USE_PROPER_AQI_CONVERSION:-false}
+      - DATABASE_URL=sqlite:////app/data/air_quality.db
+    volumes:
+      # Persist SQLite database across container restarts
+      - air_quality_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ── Frontend dev server (optional — only for development) ──
+  # Comment out in production; the backend already serves the built SPA
+  frontend-dev:
+    image: node:20-alpine
+    container_name: air-quality-frontend-dev
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"        # Vite dev server with HMR
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # anonymous volume to avoid host override
+    environment:
+      - VITE_API_BASE=http://backend:5000
+    depends_on:
+      backend:
+        condition: service_healthy
+    profiles:
+      - dev               # Start only with: docker compose --profile dev up
+
+volumes:
+  air_quality_data:
+    driver: local
