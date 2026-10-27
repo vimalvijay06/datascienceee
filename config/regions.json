@@ -1,0 +1,45 @@
+{
+  "tier_1_india": {
+    "name": "India (Priority 1 - Full Sub-continent Monitoring)",
+    "priority": 1,
+    "cities": [
+      { "name": "Delhi", "lat": 28.61, "lon": 77.23, "country": "India" },
+      { "name": "Mumbai", "lat": 19.07, "lon": 72.87, "country": "India" },
+      { "name": "Bengaluru", "lat": 12.97, "lon": 77.59, "country": "India" },
+      { "name": "Kolkata", "lat": 22.57, "lon": 88.36, "country": "India" },
+      { "name": "Chennai", "lat": 13.08, "lon": 80.27, "country": "India" },
+      { "name": "Hyderabad", "lat": 17.38, "lon": 78.48, "country": "India" },
+      { "name": "Varanasi", "lat": 25.31, "lon": 82.97, "country": "India" }
+    ]
+  },
+  "tier_2_south_asia": {
+    "name": "South Asia Neighbors (Priority 2)",
+    "priority": 2,
+    "cities": [
+      { "name": "Lahore", "lat": 31.52, "lon": 74.35, "country": "Pakistan" },
+      { "name": "Islamabad", "lat": 33.68, "lon": 73.04, "country": "Pakistan" },
+      { "name": "Dhaka", "lat": 23.81, "lon": 90.41, "country": "Bangladesh" },
+      { "name": "Kathmandu", "lat": 27.71, "lon": 85.32, "country": "Nepal" },
+      { "name": "Beijing", "lat": 39.90, "lon": 116.40, "country": "China" },
+      { "name": "Colombo", "lat": 6.92, "lon": 79.86, "country": "Sri Lanka" },
+      { "name": "Yangon", "lat": 16.86, "lon": 96.19, "country": "Myanmar" },
+      { "name": "Thimphu", "lat": 27.47, "lon": 89.63, "country": "Bhutan" },
+      { "name": "Kabul", "lat": 34.55, "lon": 69.20, "country": "Afghanistan" }
+    ]
+  },
+  "tier_3_global": {
+    "name": "Global Coverage (Priority 3)",
+    "priority": 3,
+    "cities": [
+      { "name": "New York", "lat": 40.71, "lon": -74.00, "country": "United States of America" },
+      { "name": "Los Angeles", "lat": 34.05, "lon": -118.24, "country": "United States of America" },
+      { "name": "London", "lat": 51.50, "lon": -0.12, "country": "United Kingdom" },
+      { "name": "Paris", "lat": 48.85, "lon": 2.35, "country": "France" },
+      { "name": "Berlin", "lat": 52.52, "lon": 13.40, "country": "Germany" },
+      { "name": "Tokyo", "lat": 35.67, "lon": 139.65, "country": "Japan" },
+      { "name": "Sao Paulo", "lat": -23.55, "lon": -46.63, "country": "Brazil" },
+      { "name": "Moscow", "lat": 55.75, "lon": 37.61, "country": "Russian Federation" },
+      { "name": "Sydney", "lat": -33.86, "lon": 151.20, "country": "Australia" }
+    ]
+  }
+}

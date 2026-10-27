@@ -132,6 +132,9 @@ class StorageService:
             else:
                 df_new.to_csv(csv_path, mode="a", header=False, index=False)
 
+            # Additive: Dual-write to new SQLAlchemy store data/readings.db & check quality anomalies
+            self._dual_write_readings_db(record)
+
             return changes > 0
 
         except Exception as e:
@@ -139,6 +142,87 @@ class StorageService:
             return False
         finally:
             conn.close()
+
+    def _dual_write_readings_db(self, record: Dict[str, Any]):
+        """
+        Non-destructively records individual pollutant readings into data/readings.db
+        and logs data quality flags (negative values, extreme spikes).
+        """
+        try:
+            from database_models import SessionLocal, AtmosphericReading, DataQualityLog, init_readings_db
+            init_readings_db()
+
+            station_id = str(record.get("location_id") or record.get("station_name") or "unknown")
+            country = str(record.get("country_name") or "Unknown")
+            city = str(record.get("city_name") or record.get("station_name") or "")
+            source = str(record.get("source") or "OpenAQ")
+            lat = float(record.get("latitude") or 0.0)
+            lon = float(record.get("longitude") or 0.0)
+            obs_at = str(record.get("measurement_timestamp") or datetime.utcnow().isoformat())
+
+            pollutants_map = {
+                "CO": (record.get("co_aqi_value"), "AQI_val"),
+                "O3": (record.get("ozone_aqi_value"), "AQI_val"),
+                "NO2": (record.get("no2_aqi_value"), "AQI_val"),
+                "PM2.5": (record.get("pm2.5_aqi_value") or record.get("pm25_aqi_value"), "AQI_val")
+            }
+
+            db_session = SessionLocal()
+            try:
+                for pol_name, (val, unit) in pollutants_map.items():
+                    if val is not None:
+                        val_float = float(val)
+                        # Check data quality anomalies
+                        if val_float < 0:
+                            db_session.add(DataQualityLog(
+                                station_id=station_id,
+                                source=source,
+                                pollutant=pol_name,
+                                raw_value=val_float,
+                                flag_type="NEGATIVE_VALUE",
+                                description=f"Negative value observed: {val_float} for {pol_name}"
+                            ))
+                        elif val_float > 1000:
+                            db_session.add(DataQualityLog(
+                                station_id=station_id,
+                                source=source,
+                                pollutant=pol_name,
+                                raw_value=val_float,
+                                flag_type="EXTREME_SPIKE",
+                                description=f"Extreme spike beyond 1000 AQI: {val_float} for {pol_name}"
+                            ))
+
+                        # Save reading (deduplicating on station_id, pollutant, observed_at)
+                        existing = db_session.query(AtmosphericReading).filter_by(
+                            station_id=station_id,
+                            pollutant=pol_name,
+                            observed_at=obs_at
+                        ).first()
+
+                        if not existing:
+                            db_session.add(AtmosphericReading(
+                                source=source,
+                                station_id=station_id,
+                                city=city,
+                                country=country,
+                                lat=lat,
+                                lon=lon,
+                                pollutant=pol_name,
+                                value=val_float,
+                                unit=unit,
+                                observed_at=obs_at
+                            ))
+
+                db_session.commit()
+            except Exception as sub_err:
+                db_session.rollback()
+                logger.warning(f"Dual-write to readings.db skipped due to: {sub_err}")
+            finally:
+                db_session.close()
+
+        except Exception as err:
+            logger.warning(f"Error in dual-write handler: {err}")
+
 
     def get_recent_measurements(self, limit: int = 50) -> List[Dict[str, Any]]:
         """Retrieves recent measurements from SQLite database."""

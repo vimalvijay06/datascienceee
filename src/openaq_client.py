@@ -92,6 +92,63 @@ class OpenAQv3Client:
             logger.error(f"Error fetching locations list: {e}")
             return []
 
+    # ==========================================================================
+    # RELIABILITY WRAPPERS (Exponential Backoff, Retries & Cached Fallback)
+    # ==========================================================================
+
+    def fetch_with_retry(
+        self,
+        endpoint_func,
+        *args,
+        max_retries: int = 3,
+        initial_backoff: float = 1.0,
+        **kwargs
+    ) -> Any:
+        """
+        Executes an API request with exponential backoff and rate-limit handling.
+        """
+        import time
+        backoff = initial_backoff
+
+        for attempt in range(1, max_retries + 1):
+            try:
+                return endpoint_func(*args, **kwargs)
+            except Exception as e:
+                err_str = str(e)
+                # Rate limit or transient network error
+                if "429" in err_str or "503" in err_str or "502" in err_str:
+                    logger.warning(f"Attempt {attempt}/{max_retries} encountered transient error: {err_str}. Backing off {backoff:.2f}s...")
+                    time.sleep(backoff)
+                    backoff *= 2.0
+                elif attempt == max_retries:
+                    logger.error(f"All {max_retries} retries exhausted for {endpoint_func.__name__}: {e}")
+                    raise e
+                else:
+                    logger.warning(f"Attempt {attempt}/{max_retries} failed with error: {e}. Retrying...")
+                    time.sleep(backoff)
+                    backoff *= 1.5
+
+    def fetch_location_cached_fallback(self, location_id: int) -> Dict[str, Any]:
+        """
+        Tries to fetch live data with retry. If OpenAQ is offline, falls back to the most recent
+        archived raw JSON in data/raw/openaq/ to prevent dashboard failures.
+        """
+        try:
+            return self.fetch_with_retry(self.fetch_location_by_id, location_id)
+        except Exception as live_err:
+            logger.warning(f"OpenAQ live fetch failed for location {location_id}: {live_err}. Searching cached raw archive...")
+            raw_base = BASE_DIR / "data" / "raw" / "openaq"
+            if raw_base.exists():
+                matching_files = sorted(raw_base.glob(f"**/raw_{location_id}_*.json"), key=os.path.getmtime, reverse=True)
+                if matching_files:
+                    latest_cache = matching_files[0]
+                    logger.info(f"Using cached raw file for fallback: {latest_cache}")
+                    with open(latest_cache, "r", encoding="utf-8") as f:
+                        return json.load(f)
+            
+            # If no cached file exists, re-raise original error
+            raise live_err
+
 
 if __name__ == "__main__":
     client = OpenAQv3Client()
@@ -101,3 +158,4 @@ if __name__ == "__main__":
         print(f"Successfully fetched station: {data.get('name')} | Locality: {data.get('locality')}")
     except Exception as e:
         print(f"Fetch result: {e}")
+
