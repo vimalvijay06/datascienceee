@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Air Pollution & AQI Violations Analytics Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-wind"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>EcoPulse</h2>
+                    <span>Air Analytics ML</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#overview" class="nav-item active">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Overview KPI</span>
+                </a>
+                <a href="#openaq-live" class="nav-item">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                    <span>Live OpenAQ v3</span>
+                </a>
+                <a href="#simulator" class="nav-item">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>ML Predictor</span>
+                </a>
+                <a href="#analytics" class="nav-item">
+                    <i class="fa-solid fa-chart-bar"></i>
+                    <span>Data Analytics</span>
+                </a>
+                <a href="#violations" class="nav-item">
+                    <i class="fa-solid fa-gavel"></i>
+                    <span>Violations Tracker</span>
+                </a>
+                <a href="#model-info" class="nav-item">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>Model Metadata</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot online"></span>
+                    <span>Tuned Model Loaded</span>
+                </div>
+                <p class="accuracy-badge">Accuracy: 99.91%</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1>Global Air Pollution Exceedances & Violations</h1>
+                    <p>Machine Learning Prediction, OpenAQ Live Ingestion & Compliance Analytics</p>
+                </div>
+                <div class="header-actions">
+                    <div class="api-key-box">
+                        <i class="fa-solid fa-key"></i>
+                        <input type="password" id="openaq-key-input" placeholder="OpenAQ v3 API Key (Optional)">
+                    </div>
+                    <button class="btn btn-primary" onclick="refreshDashboardData()">
+                        <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scientific Limitation Disclaimer Banner -->
+            <div class="alert-banner">
+                <div class="alert-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="alert-content">
+                    <strong>Scientific Limitation Notice:</strong>
+                    <span>This machine learning model predicts atmospheric AQI categories. An air-quality exceedance is an environmental measurement and is NOT directly equivalent to a legal regulatory violation. Legal violations are tracked separately below.</span>
+                </div>
+            </div>
+
+            <!-- Overview KPI Cards -->
+            <section id="overview" class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span>Total Historical Samples</span>
+                        <div class="kpi-icon blue"><i class="fa-solid fa-database"></i></div>
+                    </div>
+                    <div class="kpi-value" id="kpi-samples">23,463</div>
+                    <div class="kpi-subtext">Global Monitoring Dataset</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span>ML Model Accuracy</span>
+                        <div class="kpi-icon green"><i class="fa-solid fa-circle-check"></i></div>
+                    </div>
+                    <div class="kpi-value" id="kpi-accuracy">99.91%</div>
+                    <div class="kpi-subtext">Tuned RandomForest Pipeline</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span>Countries Covered</span>
+                        <div class="kpi-icon purple"><i class="fa-solid fa-globe"></i></div>
+                    </div>
+                    <div class="kpi-value" id="kpi-countries">175</div>
+                    <div class="kpi-subtext">Global Coverage</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span>AQI Target Classes</span>
+                        <div class="kpi-icon orange"><i class="fa-solid fa-layer-group"></i></div>
+                    </div>
+                    <div class="kpi-value" id="kpi-classes">6</div>
+                    <div class="kpi-subtext">Good to Hazardous</div>
+                </div>
+            </section>
+
+            <!-- Section: Live OpenAQ Ingestion -->
+            <section id="openaq-live" class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-satellite-dish"></i> Live OpenAQ v3 API Data Ingestion</h2>
+                    <p>Fetch real-time sensor measurements from global monitoring stations and predict AQI category</p>
+                </div>
+
+                <div class="openaq-grid">
+                    <div class="glass-card openaq-controls">
+                        <h3>Fetch Live Location</h3>
+                        <div class="form-group">
+                            <label for="openaq-location-id">OpenAQ Location ID:</label>
+                            <div class="input-with-btn">
+                                <input type="number" id="openaq-location-id" value="2178" placeholder="e.g. 2178">
+                                <button class="btn btn-accent" id="btn-fetch-openaq" onclick="fetchOpenAQLive()">
+                                    <i class="fa-solid fa-bolt"></i> Ingest & Predict
+                                </button>
+                            </div>
+                            <span class="help-text">Try Location ID 2178, 100, or your local station ID</span>
+                        </div>
+
+                        <div class="demo-chips">
+                            <span>Sample Quick Stations:</span>
+                            <button class="chip" onclick="setStation(2178)">Station 2178 (Ru)</button>
+                            <button class="chip" onclick="setStation(100)">Station 100 (US)</button>
+                            <button class="chip" onclick="setStation(500)">Station 500 (DE)</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-card openaq-result" id="openaq-result-card">
+                        <div class="result-placeholder" id="openaq-placeholder">
+                            <i class="fa-solid fa-cloud-arrow-down"></i>
+                            <p>Click "Ingest & Predict" to stream live OpenAQ sensor measurements.</p>
+                        </div>
+                        <div class="result-content hidden" id="openaq-content">
+                            <div class="result-top">
+                                <div>
+                                    <h4 id="openaq-locality">Station Name</h4>
+                                    <span id="openaq-country" class="country-badge">Country</span>
+                                </div>
+                                <div id="openaq-predicted-badge" class="aqi-badge">Category</div>
+                            </div>
+                            <div class="live-metrics">
+                                <div class="metric-chip">
+                                    <span class="lbl">PM2.5 AQI</span>
+                                    <span class="val" id="openaq-pm25">0</span>
+                                </div>
+                                <div class="metric-chip">
+                                    <span class="lbl">Ozone AQI</span>
+                                    <span class="val" id="openaq-ozone">0</span>
+                                </div>
+                                <div class="metric-chip">
+                                    <span class="lbl">NO2 AQI</span>
+                                    <span class="val" id="openaq-no2">0</span>
+                                </div>
+                                <div class="metric-chip">
+                                    <span class="lbl">CO AQI</span>
+                                    <span class="val" id="openaq-co">0</span>
+                                </div>
+                            </div>
+                            <div class="confidence-bar-container">
+                                <div class="conf-lbl">
+                                    <span>Model Confidence:</span>
+                                    <strong id="openaq-conf-val">0%</strong>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="openaq-conf-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Interactive AQI Model Simulator -->
+            <section id="simulator" class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-sliders"></i> Interactive AQI Model Simulator</h2>
+                    <p>Adjust individual pollutant AQI levels to observe machine learning model decision behavior</p>
+                </div>
+
+                <div class="simulator-grid">
+                    <div class="glass-card simulator-form">
+                        <h3>Input Features</h3>
+
+                        <!-- Country Selection -->
+                        <div class="form-group">
+                            <label for="sim-country">Country:</label>
+                            <select id="sim-country" class="form-control">
+                                <option value="United States of America">United States of America</option>
+                                <option value="India">India</option>
+                                <option value="Germany">Germany</option>
+                                <option value="France">France</option>
+                                <option value="Russian Federation">Russian Federation</option>
+                                <option value="Brazil">Brazil</option>
+                                <option value="China">China</option>
+                            </select>
+                        </div>
+
+                        <!-- PM2.5 Slider -->
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <label for="sim-pm25"><i class="fa-solid fa-smog"></i> PM2.5 AQI Value:</label>
+                                <output id="out-pm25">51</output>
+                            </div>
+                            <input type="range" id="sim-pm25" min="0" max="500" value="51" oninput="updateSliderOutput('pm25')">
+                        </div>
+
+                        <!-- Ozone Slider -->
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <label for="sim-ozone"><i class="fa-solid fa-sun"></i> Ozone AQI Value:</label>
+                                <output id="out-ozone">36</output>
+                            </div>
+                            <input type="range" id="sim-ozone" min="0" max="300" value="36" oninput="updateSliderOutput('ozone')">
+                        </div>
+
+                        <!-- NO2 Slider -->
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <label for="sim-no2"><i class="fa-solid fa-car"></i> NO2 AQI Value:</label>
+                                <output id="out-no2">5</output>
+                            </div>
+                            <input type="range" id="sim-no2" min="0" max="200" value="5" oninput="updateSliderOutput('no2')">
+                        </div>
+
+                        <!-- CO Slider -->
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <label for="sim-co"><i class="fa-solid fa-industry"></i> CO AQI Value:</label>
+                                <output id="out-co">1</output>
+                            </div>
+                            <input type="range" id="sim-co" min="0" max="150" value="1" oninput="updateSliderOutput('co')">
+                        </div>
+
+                        <button class="btn btn-primary btn-full" onclick="runMLSimulation()">
+                            <i class="fa-solid fa-microchip"></i> Predict AQI Category
+                        </button>
+                    </div>
+
+                    <div class="glass-card simulator-output">
+                        <h3>Prediction Results</h3>
+                        <div class="prediction-hero">
+                            <div class="hero-category" id="sim-pred-badge">Moderate</div>
+                            <div class="hero-confidence">
+                                <span>Confidence Score</span>
+                                <h4 id="sim-conf-text">91.58%</h4>
+                            </div>
+                        </div>
+
+                        <div class="probability-breakdown">
+                            <h4>Class Probability Breakdown</h4>
+                            <div id="prob-bars-container">
+                                <!-- Dynamic probability bars inserted by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Data Analytics & Charts -->
+            <section id="analytics" class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-chart-bar"></i> Exploratory Data Analytics</h2>
+                    <p>Visualizing target class distributions, country coverage, and pollutant correlations</p>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="glass-card chart-card">
+                        <h3>Target Class Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="chart-target-dist"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card chart-card">
+                        <h3>Top 15 Countries by Record Count</h3>
+                        <div class="chart-container">
+                            <canvas id="chart-countries"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card chart-card full-width">
+                        <h3>Pollutant Mean & Max Statistics</h3>
+                        <div class="chart-container">
+                            <canvas id="chart-pollutants"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Regulatory Violations Tracker -->
+            <section id="violations" class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-gavel"></i> Regulatory Compliance & Violations Tracker</h2>
+                    <p>Comparing legal regulatory enforcement records with atmospheric exceedance metrics</p>
+                </div>
+
+                <div class="glass-card table-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Record ID</th>
+                                <th>Country</th>
+                                <th>Region</th>
+                                <th>Pollutant</th>
+                                <th>Measured AQI</th>
+                                <th>Exceedance Status</th>
+                                <th>Legal Action Filed?</th>
+                                <th>Enforcement Agency</th>
+                                <th>Compliance Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="violations-table-body">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Section: Model Metadata -->
+            <section id="model-info" class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-brain"></i> Model Metadata & Diagnostics</h2>
+                    <p>Detailed architecture parameters and pipeline configuration</p>
+                </div>
+
+                <div class="metadata-grid">
+                    <div class="glass-card meta-card">
+                        <h3>Pipeline Configuration</h3>
+                        <ul class="meta-list">
+                            <li><strong>Model Algorithm:</strong> Tuned RandomForestClassifier</li>
+                            <li><strong>Numerical Preprocessing:</strong> SimpleImputer(median) $\rightarrow$ StandardScaler</li>
+                            <li><strong>Categorical Preprocessing:</strong> SimpleImputer(constant) $\rightarrow$ OneHotEncoder(ignore)</li>
+                            <li><strong>Cross Validation:</strong> 5-Fold Stratified K-Fold</li>
+                            <li><strong>Train / Test Split:</strong> 80% Train / 20% Test (Stratified)</li>
+                            <li><strong>Random Seed:</strong> 42</li>
+                        </ul>
+                    </div>
+
+                    <div class="glass-card meta-card">
+                        <h3>Feature Importance</h3>
+                        <div class="feature-tags">
+                            <div class="tag-item"><span>pollutant_max</span> <strong>Highest Importance</strong></div>
+                            <div class="tag-item"><span>pm2.5_aqi_value</span> <strong>High Importance</strong></div>
+                            <div class="tag-item"><span>pollutant_mean</span> <strong>Moderate Importance</strong></div>
+                            <div class="tag-item"><span>ozone_aqi_value</span> <strong>Moderate Importance</strong></div>
+                            <div class="tag-item"><span>country_name</span> <strong>Categorical Context</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{
+    "model_name": "Tuned RandomForestClassifier Pipeline",
+    "target_column": "aqi_category",
+    "raw_numerical_features": [
+        "co_aqi_value",
+        "ozone_aqi_value",
+        "no2_aqi_value",
+        "pm2.5_aqi_value"
+    ],
+    "raw_categorical_features": [
+        "country_name"
+    ],
+    "engineered_features": [
+        "pollutant_max",
+        "pollutant_mean",
+        "pollutant_sum",
+        "pm25_to_ozone_ratio"
+    ],
+    "all_numerical_features": [
+        "co_aqi_value",
+        "ozone_aqi_value",
+        "no2_aqi_value",
+        "pm2.5_aqi_value",
+        "pollutant_max",
+        "pollutant_mean",
+        "pollutant_sum",
+        "pm25_to_ozone_ratio"
+    ],
+    "all_categorical_features": [
+        "country_name"
+    ],
+    "excluded_columns": [
+        "aqi_category",
+        "aqi_value",
+        "co_aqi_category",
+        "ozone_aqi_category",
+        "no2_aqi_category",
+        "pm2.5_aqi_category",
+        "city_name"
+    ],
+    "training_date": "2026-08-28T15:47:12.437651",
+    "dataset_filename": "global_air_pollution_data.csv",
+    "dataset_shape": [
+        23463,
+        12
+    ],
+    "train_size": 18770,
+    "test_size": 4693,
+    "number_of_classes": 6,
+    "class_names": [
+        "Good",
+        "Hazardous",
+        "Moderate",
+        "Unhealthy",
+        "Unhealthy for Sensitive Groups",
+        "Very Unhealthy"
+    ],
+    "metrics": {
+        "test_accuracy": 0.9991476667376944,
+        "balanced_accuracy": 0.9824561403508772,
+        "macro_f1": 0.9851851851851853,
+        "weighted_f1": 0.9991381963681132,
+        "cv_best_weighted_f1": 0.9987152162632384
+    },
+    "random_state": 42
+}

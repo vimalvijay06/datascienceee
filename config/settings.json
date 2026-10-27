@@ -1,0 +1,12 @@
+{
+  "api_version": "v3",
+  "base_url": "https://api.openaq.org/v3",
+  "default_locations": [2178, 100, 500, 1000, 2000],
+  "request_timeout_seconds": 12,
+  "collection_interval_minutes": 30,
+  "max_retries": 3,
+  "raw_data_dir": "data/raw/openaq",
+  "processed_data_dir": "data/processed",
+  "processed_csv_filename": "air_quality_measurements.csv",
+  "db_path": "data/air_quality.db"
+}

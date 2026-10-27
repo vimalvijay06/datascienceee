@@ -1,0 +1,5 @@
+measurement_id,source,location_id,station_name,country_name,co_aqi_value,ozone_aqi_value,no2_aqi_value,pm2.5_aqi_value,predicted_aqi_category,confidence_score,exceedance_status,measurement_timestamp
+2178_202608281656,OpenAQ,2178,Albuquerque,United States,0.0,0.0,0.0,0.0,Good,0.9811,NORMAL,2026-08-28T16:56:12.298410
+2178_202608281659,OpenAQ,2178,Albuquerque,United States,0.0,0.0,0.0,0.0,Good,0.9811,NORMAL,2026-08-28T16:59:37.282829
+2178_202608281702,OpenAQ,2178,Albuquerque,United States,0.0,0.0,0.0,0.0,Good,0.9811,NORMAL,2026-08-28T17:02:56.257262
+2178_202608281702,OpenAQ,2178,Albuquerque,United States,0.0,0.0,0.0,0.0,Good,0.9811,NORMAL,2026-08-28T17:02:59.962116

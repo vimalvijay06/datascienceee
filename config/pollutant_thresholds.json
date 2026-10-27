@@ -1,0 +1,57 @@
+{
+  "standards": {
+    "WHO_2021": {
+      "name": "World Health Organization 2021 Air Quality Guidelines",
+      "pollutants": {
+        "PM2.5": { "limit": 15.0, "unit": "µg/m³", "averaging": "24-hour" },
+        "PM10": { "limit": 45.0, "unit": "µg/m³", "averaging": "24-hour" },
+        "O3": { "limit": 100.0, "unit": "µg/m³", "averaging": "8-hour" },
+        "NO2": { "limit": 25.0, "unit": "µg/m³", "averaging": "24-hour" },
+        "CO": { "limit": 4.0, "unit": "mg/m³", "averaging": "24-hour" },
+        "SO2": { "limit": 40.0, "unit": "µg/m³", "averaging": "24-hour" }
+      }
+    },
+    "US_EPA": {
+      "name": "US EPA National Ambient Air Quality Standards (NAAQS)",
+      "pollutants": {
+        "PM2.5": { "limit": 35.0, "unit": "µg/m³", "averaging": "24-hour" },
+        "PM10": { "limit": 150.0, "unit": "µg/m³", "averaging": "24-hour" },
+        "O3": { "limit": 70.0, "unit": "ppb", "averaging": "8-hour" },
+        "NO2": { "limit": 100.0, "unit": "ppb", "averaging": "1-hour" },
+        "CO": { "limit": 9.0, "unit": "ppm", "averaging": "8-hour" },
+        "SO2": { "limit": 75.0, "unit": "ppb", "averaging": "1-hour" }
+      }
+    },
+    "CPCB_INDIA": {
+      "name": "Central Pollution Control Board India NAAQS",
+      "pollutants": {
+        "PM2.5": { "limit": 60.0, "unit": "µg/m³", "averaging": "24-hour" },
+        "PM10": { "limit": 100.0, "unit": "µg/m³", "averaging": "24-hour" },
+        "O3": { "limit": 100.0, "unit": "µg/m³", "averaging": "8-hour" },
+        "NO2": { "limit": 80.0, "unit": "µg/m³", "averaging": "24-hour" },
+        "CO": { "limit": 2.0, "unit": "mg/m³", "averaging": "8-hour" },
+        "SO2": { "limit": 80.0, "unit": "µg/m³", "averaging": "24-hour" }
+      }
+    },
+    "EU_DIRECTIVE": {
+      "name": "European Union Ambient Air Quality Directive",
+      "pollutants": {
+        "PM2.5": { "limit": 25.0, "unit": "µg/m³", "averaging": "annual" },
+        "PM10": { "limit": 50.0, "unit": "µg/m³", "averaging": "24-hour" },
+        "O3": { "limit": 120.0, "unit": "µg/m³", "averaging": "8-hour" },
+        "NO2": { "limit": 200.0, "unit": "µg/m³", "averaging": "1-hour" },
+        "CO": { "limit": 10.0, "unit": "mg/m³", "averaging": "8-hour" },
+        "SO2": { "limit": 125.0, "unit": "µg/m³", "averaging": "24-hour" }
+      }
+    }
+  },
+  "country_to_standard_map": {
+    "India": "CPCB_INDIA",
+    "United States of America": "US_EPA",
+    "Germany": "EU_DIRECTIVE",
+    "France": "EU_DIRECTIVE",
+    "Italy": "EU_DIRECTIVE",
+    "Spain": "EU_DIRECTIVE",
+    "default": "WHO_2021"
+  }
+}
