@@ -14,6 +14,8 @@
   --text-muted: #64748B;
   
   --accent-blue: #3B82F6;
+  --accent-primary: #3B82F6;  /* alias for component use */
+
   --accent-indigo: #6366F1;
   --accent-purple: #8B5CF6;
   --accent-cyan: #06B6D4;
@@ -707,3 +709,10 @@ input[type=range] {
 
 .tag-item span { font-weight: 600; color: var(--accent-cyan); font-family: var(--font-mono); }
 .tag-item strong { font-size: 11px; color: var(--text-muted); }
+
+/* ── Refresh spinner animation ── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
