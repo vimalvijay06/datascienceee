@@ -35,6 +35,7 @@ from feature_mapper import FeatureMapper
 from exceedance_detector import ExceedanceDetector
 from storage_service import StorageService
 from prediction_service import PredictionService
+from scheduler import init_scheduler
 
 # Initialize Services
 openaq_client = OpenAQv3Client()
@@ -42,6 +43,9 @@ feature_mapper = FeatureMapper()
 exceedance_detector = ExceedanceDetector()
 storage_service = StorageService()
 prediction_service = PredictionService()
+
+# Optional background scheduler (disabled by default via ENABLE_SCHEDULER=false)
+telemetry_scheduler = init_scheduler()
 
 # Initialize Flask App
 if FRONTEND_DIST.exists():
